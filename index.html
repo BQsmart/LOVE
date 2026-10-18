@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a0b14" />
+  <title>恋爱记录 · Love Diary</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 88 C20 65 8 50 8 32 A20 20 0 0 1 50 26 A20 20 0 0 1 92 32 C92 50 80 65 50 88 Z' fill='%23ff6f9c'/%3E%3C/svg%3E" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="恋爱记录" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="icons/splash-1179x2556.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 动态背景层 -->
+  <div class="bg-layer" id="bgLayer">
+    <canvas id="particleCanvas" class="bg-canvas"></canvas>
+    <div class="bg-blobs" id="bgBlobs" aria-hidden="true">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+    </div>
+    <img id="bgImage" class="bg-media" alt="" />
+    <video id="bgVideo" class="bg-media" muted loop playsinline autoplay></video>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <!-- 顶栏 -->
+  <header class="app-header glass">
+    <div class="brand" data-view-target="home">
+      <span class="brand-heart">&#10084;</span>
+      <div class="brand-text">
+        <h1 id="brandTitle">恋爱记录</h1>
+        <span class="brand-sub">Love Diary</span>
+      </div>
+    </div>
+    <nav class="nav" id="mainNav">
+      <button class="nav-btn active" data-view="home"><span class="nav-ico">&#127968;</span><span>首页</span></button>
+      <button class="nav-btn" data-view="records"><span class="nav-ico">&#128221;</span><span>随笔</span></button>
+      <button class="nav-btn" data-view="photos"><span class="nav-ico">&#128247;</span><span>相册</span></button>
+      <button class="nav-btn" data-view="export"><span class="nav-ico">&#127916;</span><span>导出</span></button>
+      <button class="nav-btn" data-view="settings"><span class="nav-ico">&#9881;</span><span>设置</span></button>
+    </nav>
+  </header>
+
+  <!-- 主内容 -->
+  <main class="app-main">
+    <!-- 首页 -->
+    <section class="view active" id="view-home">
+      <div class="home-hero">
+        <div class="hero-date glass animate-in">
+          <div class="date-week" id="homeWeekday"></div>
+          <div class="date-big" id="homeDate"></div>
+          <div class="date-lunar" id="homeTime"></div>
+        </div>
+        <div class="hero-couple glass animate-in">
+          <div class="couple-names">
+            <span id="partner1Name">宝贝</span>
+            <span class="couple-heart">&#10084;</span>
+            <span id="partner2Name">亲爱的</span>
+          </div>
+          <div class="couple-line" id="coupleLine">我们的恋爱纪念日</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card elapsed glass animate-in">
+          <div class="stat-label">&#128151; 已在一起</div>
+          <div class="stat-main" id="elapsedMain">0 天</div>
+          <div class="stat-detail" id="elapsedDetail">0 年 0 个月 0 天</div>
+          <div class="stat-live" id="elapsedLive">共 0 天 00:00:00</div>
+        </div>
+        <div class="stat-card countdown glass animate-in">
+          <div class="stat-label">&#128293; 距离<span id="countdownLabel">纪念日</span></div>
+          <div class="stat-main" id="countdownMain">--</div>
+          <div class="countdown-units" id="countdownUnits">
+            <span><b>0</b><i>天</i></span>
+            <span><b>00</b><i>时</i></span>
+            <span><b>00</b><i>分</i></span>
+            <span><b>00</b><i>秒</i></span>
+          </div>
+          <div class="stat-live" id="countdownTarget">--</div>
+        </div>
+      </div>
+
+      <div class="mini-stats glass animate-in">
+        <div class="mini"><b id="statDays">0</b><span>相恋天数</span></div>
+        <div class="mini"><b id="statEntries">0</b><span>篇随笔</span></div>
+        <div class="mini"><b id="statPhotos">0</b><span>张照片</span></div>
+      </div>
+
+      <div class="home-recent glass animate-in">
+        <div class="section-head">
+          <h2>&#128172; 最近的心动</h2>
+          <button class="link-btn" data-view-target="records">查看全部 &#8594;</button>
+        </div>
+        <div id="recentEntries" class="recent-list"><p class="empty-hint">还没有记录，去写第一篇吧 ~</p></div>
+      </div>
+    </section>
+
+    <!-- 随笔 -->
+    <section class="view" id="view-records">
+      <div class="section-head page-head glass">
+        <div>
+          <h2>&#128221; 随笔记录</h2>
+          <p class="head-sub">把每一天的心动写成文字</p>
+        </div>
+        <button class="btn btn-primary" id="btnNewEntry">&#10010; 写随笔</button>
+      </div>
+      <div class="timeline" id="timeline"><p class="empty-hint">还没有随笔，点击「写随笔」开始记录吧。</p></div>
+    </section>
+
+    <!-- 相册 -->
+    <section class="view" id="view-photos">
+      <div class="section-head page-head glass">
+        <div>
+          <h2>&#128247; 照片记录</h2>
+          <p class="head-sub">定格我们的每一个瞬间</p>
+        </div>
+        <button class="btn btn-primary" id="btnAddPhoto">&#10010; 添加照片</button>
+      </div>
+      <div class="photo-toolbar glass">
+        <input type="month" id="photoMonthFilter" class="input month-input" />
+        <button class="btn btn-ghost" id="btnClearPhotoFilter">显示全部</button>
+      </div>
+      <div class="photo-grid" id="photoGrid"><p class="empty-hint">还没有照片，点击「添加照片」上传你们的回忆吧。</p></div>
+    </section>
+
+    <!-- 导出 -->
+    <section class="view" id="view-export">
+      <div class="section-head page-head glass">
+        <div>
+          <h2>&#127916; 导出视频</h2>
+          <p class="head-sub">把一段时光做成专属影片</p>
+        </div>
+      </div>
+
+      <div class="export-card glass">
+        <div class="field-row">
+          <label>时间段</label>
+          <div class="range-inputs">
+            <input type="date" id="exportStart" class="input" />
+            <span class="range-sep">至</span>
+            <input type="date" id="exportEnd" class="input" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label>影片标题</label>
+          <input type="text" id="exportTitle" class="input" placeholder="例如：我们的 2025" />
+        </div>
+
+        <div class="field-row toggles">
+          <label class="toggle-item">
+            <input type="checkbox" id="exportPhotos" checked />
+            <span class="toggle-ui"></span>
+            <span>包含照片</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" id="exportEntries" checked />
+            <span class="toggle-ui"></span>
+            <span>包含随笔</span>
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label>每页时长</label>
+          <div class="slider-wrap">
+            <input type="range" id="exportDuration" min="2" max="8" step="0.5" value="4" />
+            <span class="slider-val" id="durationVal">4.0 秒</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label>画质</label>
+          <div class="seg" id="exportQuality">
+            <button class="seg-btn" data-q="720">720p</button>
+            <button class="seg-btn active" data-q="1080">1080p</button>
+            <button class="seg-btn" data-q="1440">2K</button>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label>背景音乐 <span class="opt">（可选）</span></label>
+          <div class="music-row">
+            <button class="btn btn-ghost" id="btnPickMusic">&#127925; 选择音频</button>
+            <span id="musicName" class="music-name">未选择</span>
+            <button class="btn btn-ghost hidden" id="btnClearMusic">清除</button>
+          </div>
+        </div>
+
+        <div class="export-summary" id="exportSummary">请先选择时间段。</div>
+
+        <button class="btn btn-primary btn-block" id="btnExport">&#127916; 生成视频</button>
+      </div>
+
+      <div class="export-progress glass hidden" id="exportProgress">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">正在生成…</div>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="view" id="view-settings">
+      <div class="section-head page-head glass">
+        <div>
+          <h2>&#9881; 设置</h2>
+          <p class="head-sub">定制属于你们的小天地</p>
+        </div>
+      </div>
+
+      <div class="settings-col">
+        <div class="settings-card glass">
+          <h3>&#128153; 恋爱信息</h3>
+          <div class="field-row">
+            <label>你的昵称</label>
+            <input type="text" id="setPartner1" class="input" />
+          </div>
+          <div class="field-row">
+            <label>TA 的昵称</label>
+            <input type="text" id="setPartner2" class="input" />
+          </div>
+          <div class="field-row">
+            <label>在一起的日子</label>
+            <input type="date" id="setStartDate" class="input" />
+          </div>
+          <div class="field-row">
+            <label>倒计时目标日</label>
+            <input type="date" id="setCountdownTarget" class="input" />
+          </div>
+          <div class="field-row">
+            <label>目标日名称</label>
+            <input type="text" id="setCountdownLabel" class="input" placeholder="例如：结婚纪念日" />
+          </div>
+        </div>
+
+        <div class="settings-card glass">
+          <h3>&#127912; 动态背景</h3>
+          <div class="bg-options">
+            <button class="bg-option active" data-bg="default">
+              <span class="bg-thumb thumb-default"></span>
+              <span>默认梦幻</span>
+            </button>
+            <button class="bg-option" data-bg="image">
+              <span class="bg-thumb thumb-image">&#128444;</span>
+              <span>选择图片</span>
+            </button>
+            <button class="bg-option" data-bg="video">
+              <span class="bg-thumb thumb-video">&#127916;</span>
+              <span>选择视频</span>
+            </button>
+          </div>
+          <input type="file" id="bgImageInput" accept="image/*" class="hidden" />
+          <input type="file" id="bgVideoInput" accept="video/*" class="hidden" />
+          <div class="field-row" id="bgCurrentRow">
+            <label>当前背景</label>
+            <span class="music-name" id="bgCurrentName">默认动态梦幻背景</span>
+          </div>
+        </div>
+
+        <div class="settings-card glass">
+          <h3>&#128190; 数据管理</h3>
+          <div class="data-btns">
+            <button class="btn btn-ghost" id="btnExportData">&#11015; 导出备份</button>
+            <button class="btn btn-ghost" id="btnImportData">&#11014; 导入备份</button>
+            <button class="btn btn-danger" id="btnClearData">&#128465; 清空数据</button>
+          </div>
+          <input type="file" id="importInput" accept="application/json" class="hidden" />
+          <p class="data-hint">数据仅保存在本机浏览器中，请定期导出备份。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 随笔编辑弹窗 -->
+  <div class="modal-backdrop hidden" id="entryModal">
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3 id="entryModalTitle">写随笔</h3>
+        <button class="icon-btn" data-close="entryModal">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <input type="date" id="entryDate" class="input" />
+        <input type="text" id="entryTitle" class="input" placeholder="标题（可选）" />
+        <textarea id="entryContent" class="input textarea" rows="6" placeholder="写下此刻的心情…"></textarea>
+        <div class="mood-row">
+          <span class="mood-label">心情</span>
+          <div class="mood-picker" id="moodPicker">
+            <button class="mood-btn" data-mood="&#128525;">&#128525;</button>
+            <button class="mood-btn" data-mood="&#128522;">&#128522;</button>
+            <button class="mood-btn" data-mood="&#128524;">&#128524;</button>
+            <button class="mood-btn" data-mood="&#128532;">&#128532;</button>
+            <button class="mood-btn" data-mood="&#128148;">&#128148;</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="entryModal">取消</button>
+        <button class="btn btn-primary" id="btnSaveEntry">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 照片添加/查看弹窗 -->
+  <div class="modal-backdrop hidden" id="photoModal">
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3>添加照片</h3>
+        <button class="icon-btn" data-close="photoModal">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="photoInput" accept="image/*" multiple class="hidden" />
+          <div class="drop-inner">
+            <span class="drop-ico">&#128247;</span>
+            <p>点击或拖拽照片到此处</p>
+            <p class="drop-sub">支持多张，将保存到本机</p>
+          </div>
+        </div>
+        <div class="photo-preview-list" id="photoPreviewList"></div>
+        <div class="field-row">
+          <label>照片日期</label>
+          <input type="date" id="photoDate" class="input" />
+        </div>
+        <input type="text" id="photoCaption" class="input" placeholder="给照片写一句话（可选）" />
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="photoModal">取消</button>
+        <button class="btn btn-primary" id="btnSavePhotos">保存照片</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 照片大图查看 -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lightbox-close icon-btn" id="lightboxClose">&#10005;</button>
+    <img id="lightboxImg" alt="" />
+    <div class="lightbox-meta">
+      <span id="lightboxDate"></span>
+      <span id="lightboxCaption"></span>
+    </div>
+    <button class="lightbox-del btn btn-danger" id="lightboxDel">删除这张照片</button>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/db.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/video.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // 仅在 HTTPS 真实域名下注册 Service Worker（实现离线），文件/局域网/Capacitor 原生环境不注册
+    if ("serviceWorker" in navigator && location.protocol === "https:" && location.hostname !== "localhost") {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    }
+  </script>
+</body>
+</html>

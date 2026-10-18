@@ -1,0 +1,16 @@
+{
+  "name": "恋爱记录 · Love Diary",
+  "short_name": "恋爱记录",
+  "description": "记录你们的每一个心动瞬间：日期、倒计时、随笔、照片，还能一键导出专属影片。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a0b14",
+  "theme_color": "#1a0b14",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
